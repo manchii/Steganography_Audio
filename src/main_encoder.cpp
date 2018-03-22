@@ -1,14 +1,33 @@
+//=======================================================================
+/*Archivo	 main_encoder.cpp
+ *Autor	 	 Kaleb Alfaro
+ *Correo	 kaleb.23415@gmail.com
+ *Descripcion:
+ *		Este programa pretende realizar esteganografía
+ *		por medio de enmascaramiento con eco. Para realizarlo
+ *		se codifica por retardos y amplitudes establecidas.
+ *		La información codificada proviene de un archivo leido,
+ *		y registrada en un arreglo de bits. Los retardos se codifican
+ *		por medio de una convolución de un segmento de la canción y la
+ *		función de transferencia del retardo.
+ */
+//=======================================================================
+
+//Header donde se encuentran los valores DEFAULT_XXX
+//y los métodos utilizados
 #include "info.h"
 
 
-/* Flag set by ‘--verbose’. */
-static int verbose_flag;
-static size_t t_one=DEFAULT_T_ONE;
-static size_t t_zero=DEFAULT_T_ZERO;
-static int a_one=DEFAULT_A_ONE;
-static int a_zero=DEFAULT_A_ZERO;
-static size_t n_window=DEFAULT_WINDOW_SIZE;
-static char metadata_dir[20] = DEFAULT_METADATA;
+//Variables definidas por banderas y parámetros de ejecución
+
+static int verbose_flag;	//sin uso
+static size_t t_one=DEFAULT_T_ONE;// tiempo de retardo de 1 lógico (us)
+static size_t t_zero=DEFAULT_T_ZERO;// tiempo de retardo de 0 lógico (us)
+static int a_one=DEFAULT_A_ONE;	// amplitud de retardo de 1 lógico (us)
+static int a_zero=DEFAULT_A_ZERO;// amplitud de retardo de 0 lógico (us)
+static size_t n_window=DEFAULT_WINDOW_SIZE; // tamaño de ventana (número de muestras)
+static char metadata_dir[25] = DEFAULT_METADATA; // directorio de archivo cuyos datos se codifican
+static char song_dir[25] = DEFAULT_SONG; // canción del cual se escriben los retardos
 
 int main (int argc, char **argv)
 {
@@ -17,33 +36,28 @@ int main (int argc, char **argv)
 	while (1){
 		static struct option long_options[] =
 		{
-          /* These options set a flag. */
+          /* Opciones de banderas. */
 			{"verbose", no_argument,       &verbose_flag, 1},
 			{"brief",   no_argument,       &verbose_flag, 0},
-          /* These options don’t set a flag.
-             We distinguish them by their indices. */
 			{"set-t-one",	required_argument, 0, 'a'},
 			{"set-t-zero",	required_argument, 0, 'b'},
 			{"set-a-one",	required_argument, 0, 'd'},
 			{"set-a-zero",  required_argument, 0, 'c'},
 			{"set-window-size",  required_argument, 0, 'w'},
+			{"set-song",  required_argument, 0, 's'},
 			{"mdt-dir",		required_argument, 0, 'f'},
 			{0, 0, 0, 0}
 		};
-      /* getopt_long stores the option index here. */
 	int option_index = 0;
 
-	c = getopt_long (argc, argv, "a:b:c:d:f:w:",
+	c = getopt_long (argc, argv, "a:b:c:d:f:w:s:",
                        long_options, &option_index);
-
-		/* Detect the end of the options. */
 	if (c == -1)
 		break;
 
 	switch (c)
 		{
 		case 0:
-          /* If this option set a flag, do nothing else now. */
 			if (long_options[option_index].flag != 0)
 				break;
 			printf ("option %s", long_options[option_index].name);
@@ -95,28 +109,17 @@ int main (int argc, char **argv)
 				printf("Value --set-window-size not a number\n");
 			}
 			break;
-
+			case 's':
+					strcpy(song_dir,optarg);
+				break;
 		case '?':
-          /* getopt_long already printed an error message. */
 			break;
 	default:
 		abort ();
 		}
 	}
 
-  /* Instead of reporting ‘--verbose’
-     and ‘--brief’ as they are encountered,
-     we report the final status resulting from them. */
-	if (verbose_flag)
-		puts ("verbose flag is set");
-	/* Print any remaining command line arguments (not options). */
-	if (optind < argc){
-		printf ("non-option ARGV-elements: ");
-		while (optind < argc)
-			printf ("%s ", argv[optind++]);
-		putchar ('\n');
-	}
-
+  //Escribir definiciones pasadas por parámetros
 	printf("Time delay of zero with value of %d\n us", (int) t_one);
 	printf("Time delay of one with value of %d\n us", (int) t_zero);
 	printf("Amplitude of delay of one with value of %d\n", a_one);
@@ -133,7 +136,7 @@ int main (int argc, char **argv)
 	bitArray=get_bit_array(data_buffer);
 
 	AudioFile<double> audioFile;
-	audioFile.load ("input2.wav");
+	audioFile.load (song_dir);
 
 	size_t n_delay_one = (size_t) round((int) t_one/round(1/(audioFile.getSampleRate()*1e-6)));
 	//size_t n_delay_one = 100;
@@ -180,8 +183,8 @@ int main (int argc, char **argv)
 	AudioFile<double> audioFileOut;
 	audioFileOut.setAudioBuffer(new_audioFile_buffer);
 	audioFileOut.setBitDepth (16);
-	audioFileOut.setSampleRate (44100);
-	audioFileOut.save ("audioFile.wav");
+	audioFileOut.setSampleRate (audioFile.getSampleRate());
+	audioFileOut.save (OUTPUT_SONG);
 	printf("Ended\n");
 	free(encoded_song.payload);
 

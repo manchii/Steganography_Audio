@@ -7,7 +7,7 @@ static size_t t_zero=DEFAULT_T_ZERO;
 static int a_one=DEFAULT_A_ONE;
 static int a_zero=DEFAULT_A_ZERO;
 static size_t n_window=DEFAULT_WINDOW_SIZE;
-static char metadata_dir[20] = "metadata_rcv.txt";
+static char metadata_dir[30] = DEFAULT_METADATA_OUT;
 
 int main(int argc, char **argv) {
   int c;
@@ -123,9 +123,13 @@ int main(int argc, char **argv) {
 	printf("File to encode: %s\n", metadata_dir);
 
   AudioFile<double> audioFile;
-	audioFile.load ("audioFile.wav");
+	audioFile.load (OUTPUT_SONG);
   Array<char> data_buffer;
-  Array<char> bitArray = decode_song(audioFile, t_one, t_zero, n_window);
+  size_t n_delay_one = (size_t) round((int) t_one/round(1/(audioFile.getSampleRate()*1e-6)));
+	//size_t n_delay_one = 100;
+	size_t n_delay_zero = (size_t) round((int) t_zero/round(1/(audioFile.getSampleRate()*1e-6)));
+  Array<char> bitArray = decode_song(audioFile, n_delay_one, n_delay_zero, n_window);
+
   data_buffer.length = bitArray.length/8;
   data_buffer.payload = (char*) malloc (sizeof(char)*data_buffer.length);
   for(int i=0;i<data_buffer.length;i++){

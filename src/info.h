@@ -18,11 +18,14 @@
 
 
 
-#define DEFAULT_METADATA "metadatos"
+#define DEFAULT_METADATA "songs/metadatos.txt"
+#define DEFAULT_METADATA_OUT "songs/metadatos_out.txt"
+#define DEFAULT_SONG "songs/SunInTheSky.wav"
+#define OUTPUT_SONG "encoded_song.wav"
 #define DEFAULT_T_ONE 2300
-#define DEFAULT_T_ZERO 4600
-#define DEFAULT_A_ONE 40
-#define DEFAULT_A_ZERO 40
+#define DEFAULT_T_ZERO 5100
+#define DEFAULT_A_ONE 60
+#define DEFAULT_A_ZERO 60
 #define DEFAULT_WINDOW_SIZE 10000
 
 #define getbit(IN,N) (IN >> N) & 1;
@@ -160,10 +163,22 @@ Array<T> encode_data(AudioFile<T> audioFile, Array<char> bitArray, Array<T> kern
   for(int i=0;i<conv_before.length;i++){
     conv_before.payload[i]=0;
   }
-  for(int i=0;i<N_windows-1;i++){
-    window.payload = &audioFile.samples[0][i*window.length];
+  for(int i=0;i<N_windows;i++){
+    if(i<N_windows-1){
+      window.payload = &audioFile.samples[0][i*window.length];
+    }else{
+      window.payload = (T*) malloc(sizeof(T)*window.length);
+      for(int j=0;j<window.length;j++){
+        if(j<(audioFile.getNumSamplesPerChannel()%window.length)){
+          window.payload[j] = audioFile.samples[0][i*window.length+j];
+        }else{
+          window.payload[j] =0;
+        }
+      }
+    }
+
     blackman_window<T>(window);
-    printf("%d\t%d\n", N_windows, i);
+//    printf("%d\t%d\n", N_windows, i);
     if(i<bitArray.length){
       if(bitArray.payload[i]){
 //        printf("len %d %d\n",window.length,kernel_one.length);
@@ -230,12 +245,13 @@ bool corr_ceptrm(T* buffer, int t_delay_one, int t_delay_zero, size_t window_siz
   }
   fftw_execute(plan2);
 
-  printf("%f\t%f\t%f\n", std::abs<T>(ifft[0])/window_size, std::abs<T>(ifft[t_delay_one-1])/window_size, std::abs<double>(ifft[t_delay_zero-1])/window_size);
-  if (std::abs<T>(ifft[t_delay_one-1])>std::abs<double>(ifft[t_delay_zero-1])) {
+  //printf("%f\t%f\t%f\n", std::abs<T>(ifft[0])/window_size, std::abs<T>(ifft[t_delay_one])/window_size, std::abs<double>(ifft[t_delay_zero])/window_size);
+  if (std::abs<T>(ifft[t_delay_one])>std::abs<double>(ifft[t_delay_zero])) {
     bit = true;
   }else{
     bit = false;
   }
+  //XXX
   FILE *pFile = fopen("corcor","w");
 
   for(int i=0;i<300;i++){
@@ -245,6 +261,7 @@ bool corr_ceptrm(T* buffer, int t_delay_one, int t_delay_zero, size_t window_siz
   int L;
   std::string kek;
   getline(std::cin,kek);
+
 
   fftw_destroy_plan(plan);
   fftw_destroy_plan(plan2);
