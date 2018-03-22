@@ -57,6 +57,7 @@
 \usepackage{graphicx}
 %\usepackage{subcaption}
 %\usepackage[caption=false, font=footnotesize]{subfig}
+\usepackage{hyperref}
 \usepackage{mathrsfs,amsmath}
 \usepackage{array}
 \usepackage{mdwmath}
@@ -440,7 +441,7 @@ v(n)=0.42 - 0.5 \cos \left(  \frac{2\pi n}{N-1}\right) + 0.08 \cos \left(  \frac
 \end{figure}
 
 \subsection{Decodificador}
-De acuerdo a la bibliografía, se decidió utilizar el método de autocorrelación del Cepstro \eqref{eq:rcc}. Este consiste en ventanar el archivo de audio codificado, multiplicar punto a punto cada ventana por la ventana de Blackman \eqref{eq:bm}, realizar el cálculo de la autocorrelación del Cepstro a cada uno e identificar el bit registrado por el codificador. La secuencia de bits se puede recuperar utilizando la ecuación \eqref{eq:bit}, esta ecuación es aplicada para el k-ésima ventana $x_k(n)$. Con base a la secuencia de bits $B(k)$, se realiza escritura del archivo original.
+De acuerdo a la bibliografía \cite{IEEEhowto:datahiding2}, se decidió utilizar el método de autocorrelación del Cepstro \eqref{eq:rcc}. Este consiste en ventanar el archivo de audio codificado, multiplicar punto a punto cada ventana por la ventana de Blackman \eqref{eq:bm}, realizar el cálculo de la autocorrelación del Cepstro a cada uno e identificar el bit registrado por el codificador. La secuencia de bits se puede recuperar utilizando la ecuación \eqref{eq:bit}, esta ecuación es aplicada para el k-ésima ventana $x_k(n)$. Con base a la secuencia de bits $B(k)$, se realiza escritura del archivo original.
 
 \begin{equation}
 R_{cc_k}(n) = \mathscr{F}^{-1} \left \{  [ln( \mathscr{F} \left \{ x_k(n) \right \} )]^2 \right \}
@@ -526,7 +527,7 @@ Se realizó una secuencia de pruebas del sistema completo variando los parámetr
 \end{figure}
 
 \subsection{Relación con la calificación ODG del PEAQ}
-Bajo la premisa que si al mejorar porcentaje de error en la recepción de datos, se empeora la calificación perceptiva del audio original, se realizó graficar dicha relación. En la figura \ref{fig:odg} se observa dicha gráfica. De acuerdo con ella, no se observa una tendencia clara para justificar que la llegada de datos de forma confiable viole la calidad de audio. Asimismo, la calificación en general se encuentra muy mala en general para todas las muestras realizadas. Se explica porque el método utilizado para codificar, vuelve el audio de estereo a mono, afectando gravemente la calificación.
+Bajo la premisa que si al mejorar porcentaje de error en la recepción de datos, se empeora la calificación perceptiva del audio original, se realizó graficar dicha relación. El PEAQ utilizado se recuperó de la referencia \cite{PEAQ}  En la figura \ref{fig:odg} se observa dicha gráfica. De acuerdo con ella, no se observa una tendencia clara para justificar que la llegada de datos de forma confiable viole la calidad de audio. Asimismo, la calificación en general se encuentra muy mala en general para todas las muestras realizadas. Se explica porque el método utilizado para codificar, vuelve el audio de estereo a mono, afectando gravemente la calificación.
 
 \begin{figure}[h]
 \centering
@@ -675,10 +676,23 @@ Bajo la premisa que si al mejorar porcentaje de error en la recepción de datos,
 % (used to reserve space for the reference number labels box)
 \begin{thebibliography}{1}
 
-\bibitem{IEEEhowto:kopka}
-H.~Kopka and P.~W. Daly, \emph{A Guide to \LaTeX}, 3rd~ed.\hskip 1em plus
-  0.5em minus 0.4em\relax Harlow, England: Addison-Wesley, 1999.
 
+\bibitem{IEEEhowto:datahiding}
+T.~Kim P.~Dutta, D.~Bhattacharyya. Data hiding in audio signal: a review. \hskip 1em plus
+ 0.5em minus 0.4em\relax  \emph{International Journal of Database Theory and Application}, 2, 2009. Available from: \url{http://www.sersc.org/journals/IJDTA/vol2_no2/1.pdf}
+
+\bibitem{IEEEhowto:datahiding2}
+S. Behal N. Kaur. Audio steganography techniques - a survey. \emph{International Journal of
+Engineering Research and Applications}, 4:94–100, 2014. Available from: \url{http://www.ijera.
+com/papers/Vol4_issue6/Version\%205/P0460594100.pdf}.
+
+\bibitem{IEEEhowto:datahiding3}
+V. Korzhik. Audio watermarking based on echo hiding with zero error probability. 
+\emph{International Journal of Computer Science and Applications}, 10:1–10, 2013. Available from:
+\url{http://www.tmrfindia.org/ijcsa/v10i11.pdf}.
+
+\bibitem{PEAQ}
+Repositorio \url{https://github.com/akinori-ito/peaqb-fast}.
 \end{thebibliography}
 
 
